@@ -1,0 +1,79 @@
+body {
+    font-family:Arial, Georgia, Source Han Serif SC;
+}
+p {
+    font-size:24px;
+}
+
+#header {
+    background-color:white;
+    color:red;
+    text-align:center;
+    padding:5px;
+    width: 100%;
+    margin:0 auto; 
+}
+hr.headline {/*内嵌水平线*/
+    width:100%;
+    margin:0 auto;
+    border: 0;
+    height: 4px;
+    border-top: 1px solid red;
+    border-bottom: 4px solid red;
+}
+
+p.shuming{
+    text-align:right;
+    font-family: Arial, Georgia, Source Han Serif SC;
+}
+h1.title{
+    font-family: Arial, Georgia, Source Han Serif SC;
+}
+
+/*正文的样式*/
+#core {
+    background-color:white;
+    color:black;
+    /* text-align:left; */
+    padding:5px;
+    width: 100%;
+    margin:0 auto; 
+    text-indent: 2em;
+}
+/*禁止一级标题跟随正文缩进*/
+h2{
+    text-indent: 0em;
+}
+
+#table1 {
+    width:100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    table-layout: fixed;
+    text-align: left;
+    text-indent: 0em;
+}
+#table1 tr{
+    text-align: left;
+}
+#table1 td, #table1 th{
+    /* padding-left: 1px; */
+    border: 1px solid #98bf21;
+    padding: 0px 0px;
+}
+#table1 th{
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 4px;
+    padding-left: 0px;
+    color: #000000;
+
+}
+#table1  td   {
+    text-align: center;
+    color: #000000;
+    background-color: #eaf2d3; 
+} 
+li{
+    font-size: 0.8em;
+}

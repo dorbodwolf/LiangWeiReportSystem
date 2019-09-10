@@ -1,0 +1,245 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'report/style.css' %}">
+{% load leaflet_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <!--LEAFLET-->
+     {% leaflet_js %}
+    {% leaflet_css %} 
+    <style>
+      .leaflet-container {
+        height: 100%;
+        width: 60%;
+        align: center;
+     }
+    </style>
+    <script type="text/javascript">
+        function map_init(map, options) {
+            /*set map view*/
+            map.setView([19.85, 110.795], 11);
+            L.marker([19.75, 110.795]).addTo(map);
+        }
+    </script>
+</head>
+
+<body>
+    <div id="header">
+        <h1 class="title">2019年疑似违法建筑治理工作数据分析和实时报告</h1>
+        <p class="shuming"> 截止时间：<b>{{current_time}}</b></p>
+        <hr class="headline"/>
+    </div>
+    <div id="core">
+        <!--PART1-->
+        <h2>一 概况</h2>
+        <p>
+            文昌项目两违系统作为公司在海南市场的示范项目，该系统的目标是打破传统打违业务中“村-乡镇-市”逐级上报模式下的人情利益链。
+            理想的情况下，基于卫星和无人机影像定期提供疑似违法建筑图斑，执法人员利用系统来完成“自查-核查-违规整改-销号-工作汇报”的打
+            违工作的整个生命周期，使得业务数据在系统中流动，保证执法人员特别是镇一级打违主力军能够客观公正的上报违建，
+            从而对新增违建的发展势头起到震慑作用，达到防违控违的实际效果。定期及时的违法建筑报告可以为打违业务的考核提供强有力的证据。
+        </p>
+        <p >
+            该期报告包含两部分内容：一是最新一期卫星影像新发现的<b>{{count_of_periods.0}}</b>个疑似违法建筑图斑（批次号
+            ：<b>{{periods.0}}</b>）的说明报告；二是截止当前时间文昌市对
+            图斑的处置情况。表1是截至目前下发图斑的批次信息。
+        </p>
+        <table id="table1">
+            <caption>表1 截至当前下发图斑批次信息</caption>
+            <tr>
+                <th>批次</th>
+                <th>来源</th>
+                <th>拍摄时间</th>
+                <th>图斑个数</th>
+            </tr>
+            {% for key, value in periods_dict.items %}
+            <tr>
+                <td>{{key}}</td>
+                <td>吉林一号/ 文昌超算一号</td>
+                <td>自上一批次以来</td>
+                <td>{{value}}</td>
+            </tr>
+            {% endfor %}   
+        </table>
+        <!--PART2-->
+        <h2>二 {{periods.0}}批次图斑数据分析</h2>
+        <p>
+            {{periods.0}}批次疑似违法建筑图斑是基于文昌市
+            最新吉林一号/文昌超算一号影像和{{periods.1}}批次对应影像
+            进行变化分析提取出来的。
+            该批次共发现新增疑似违法图斑{{count_of_periods.0}}个，
+            全部为{{periods.1}}批次以来新增，
+            数据基本说明如表2所示。
+        </p>
+        <table id="table1">
+            <caption>表2 疑似违法建筑新增图斑数据说明表</caption>
+            <tr>
+                <th>批次号</th>
+                <th>影像来源</th>
+                <th>影像获取时间</th>
+                <th>影像覆盖范围</th>
+                <th>提取方法</th>
+            </tr>
+            <tr>
+                <td>{{periods.0}}</td>
+                <td>吉林一号/ 文昌超算一号</td>
+                <td>自上一批次({{periods.1}})以来</td>
+                <td>文昌全境</td>
+                <td>基于文昌市最新影像和{{periods.1}}批次对应影像进行变化分析提取新增建筑物</td>
+            </tr>
+        </table>
+        <p>
+            201906批次新增疑似违法图斑按乡镇统计如表3所示。
+        </p>
+            <!--该表按违建个数的升序排序-->
+        <table id="table1">
+            <caption>表3 {{periods.0}}批次图斑按乡镇统计</caption>
+            <tr>
+                <th>乡镇</th>
+                <th>疑似违法建筑图斑个数</th>
+                <th>落入基本农田个数</th>
+                <th>落入基本农田占比(百分比)</th>
+                <th>落入生态红线个数</th>
+                <th>落入生态红线占比(百分比)</th>
+            </tr>
+            {% for key, value in zengwei_town.items %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{value| first}}</td>
+                <td>{{value | slice:"1:2"|first}}</td>
+                {% widthratio value|slice:"2:3"|first|floatformat:2 1 100 as percent_jbnt%}
+                <td>{{percent_jbnt}}%</td>
+                <td>{{value | slice:"3:4"|first}}</td>
+                {% widthratio value|slice:"4:5"|first|floatformat:2 1 100 as percent_sthx%}
+                <td>{{percent_sthx }}%</td>
+            </tr>
+            {% endfor %}  
+        </table>
+        <p>
+            由上表可见, {{periods.0}}批次从遥感影像提取的新增疑似违法建筑物图斑最少的五个乡镇分别是:
+            <ul>
+                {% for key, value in zengwei_town.items %}
+                    {% if forloop.counter < 6 %}
+                    <li> {{key}}: {{value| first}}个新增疑似违法建筑图斑</li>                
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </p>
+        <p>
+              由上表可见, {{periods.0}}批次从遥感影像提取的新增疑似违法建筑物图斑最多的五个乡镇分别是:
+            <ul>
+                {% for key, value in zengwei_town.items %}
+                    {% if forloop.revcounter < 6 %}
+                    <li> {{key}}: {{value| first}}个新增疑似违法建筑图斑</li>                
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </p>
+            
+        <p>
+            各个乡镇落入基本农田的图斑占该镇新增图斑总数百分比超过20%的乡镇为
+            {% for key, value in luoru_jbnt.items %} 
+                {% if value|slice:"2:3"|first > 0.2%}
+                {% widthratio value|slice:"2:3"|first|floatformat:2 1 100 as percent%}
+                    {{key}}({{percent}} %)
+                {% endif %} 
+            {% endfor %}
+            。
+            按落入基本农田的新增疑似违法图斑个数排名依次是:
+             <ul>
+                {% for key, value in luoru_jbnt.items %}
+                    <li> {{key}}: 落入基本农田的新增疑似违法图斑个数是{{value| slice:"1:2"| first}}</li>                
+                {% endfor %}
+            </ul>
+        </p>
+        <p>
+            各个乡镇落入生态红线的图斑占该镇新增图斑总数百分比超过20%的乡镇为
+            {% for key, value in luoru_sthx.items %} 
+                {% if value|slice:"4:5"|first > 0.2%}
+                {% widthratio value|slice:"4:5"|first|floatformat:2 1 100 as percent%}
+                    {{key}}({{percent}} %)
+                {% endif %} 
+            {% endfor %}
+            。按落入生态红线的新增疑似违法图斑个数排名依次是:
+             <ul>
+                {% for key, value in luoru_sthx.items %}
+                    <li> {{key}}: 落入生态红线的新增疑似违法图斑个数是{{value| slice:"3:4"| first}}</li>                
+                {% endfor %}
+            </ul>
+        </p>
+        <p>
+                这些图斑的分布如下图所示。
+        </p>
+        {% leaflet_map "wenchangmap" callback="map_init" %} 
+         <!--PART3-->
+        <h2>三 下发图斑的摸底调查及处置整改情况</h2>
+        <p>
+            截止当前时间，文昌市各个乡镇责任单元利用两违监管系统共完成了{{chuzhi_count}}个图斑的调查摸底工作，
+            占{{periods.1}}期下发图斑总数（{{count_of_periods.1}}个）的百分比是
+            {% widthratio chuzhi_count count_of_periods.1 100 as per_chuzhi%}
+            {{per_chuzhi}}%。从违法认定的情况来看，
+            这{{chuzhi_count}}个图斑中目前认定合法的有{{legal_count}}个，认定违法的有{{illegal_count}}个；
+            从图斑来源来看，这些图斑来自卫星无人机拍摄下发的有{{xiafa_count}}个，来自两违用户自查的有{{zicha_count}}个。
+            具体完成情况如表4所示。
+        </p>
+        <table id="table1">
+            <caption>表4 下发图斑的摸底调查及处置整改情况</caption>
+            <tr>
+                <th>乡镇</th>
+                <th>{{periods.0}}期下发图斑个数</th>
+                <th>{{periods.1}}期下发图斑个数</th>
+                <th>自查图斑个数</th>
+                <th>调查摸底图斑个数</th>
+                <th>违法图斑个数</th>
+                <th>调查摸底占{{periods.1}}期图斑百分比</th>
+                <th>待计划处置图斑个数</th>
+                <th>已审批未整改图斑个数</th>
+                <th>完成整改图斑个数</th>
+            </tr>
+            {% for key, value in chuzhi_town.items %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{value| first}}</td>
+                <td>{{value | slice:"1:2"|first}}</td>
+                <td>{{value | slice:"2:3"|first}}</td>
+                <td>{{value | slice:"3:4"|first}}</td>
+                <td>{{value | slice:"4:5"|first}}</td>
+                {% widthratio value|slice:"3:4"|first  value|slice:"1:2"|first 100 as percent_dcmd%}
+                <td>{{percent_dcmd}}%</td>
+                <td>{{value | slice:"5:6"|first}}</td>
+                <td>{{value | slice:"6:7"|first}}</td>
+                <td>{{value | slice:"7:8"|first}}</td>
+            </tr>
+            {% endfor %}  
+        </table>
+        <p>
+            上表中未列出的乡镇是还没有开展工作。
+            最新调查摸底图斑个数占上一期（这里为{{periods.1}}期）下发图斑个数的百分比定义为摸底调查完成率。各个乡镇的调查摸底完成率分别为
+            {% for key, value in chuzhi_town.items %}
+                {% widthratio value|slice:"3:4"|first  value|slice:"1:2"|first 100 as percent_dcmd%}
+                {{key}}（{{percent_dcmd}}%）
+            {% endfor %}  。这里未列出的乡镇表示还未开展调查摸底工作，调查摸底完成率为0%。
+        </p>
+        <p>
+            各个乡镇自查图斑个数分别为
+            {% for key, value in chuzhi_town.items %}
+                {% if value|slice:"2:3"|first > 0%}
+                    {{key}}（{{value | slice:"2:3"|first}}个）
+                {% endif %}
+            {% endfor %}  。这里未列出的乡镇表示该乡镇还没有工作人员利用APP开展自查工作。
+        </p>
+        <p>
+            各个乡镇待计划处置/已计划未整改/已完成整改图斑个数依次为
+            {% for key, value in chuzhi_town.items %}
+                {% if value|slice:"5:6"|first > 0 or value|slice:"6:7"|first > 0 or value|slice:"7:8"|first > 0 %}
+                    {{key}}（待计划处置{{value|slice:"5:6"|first}}个，已计划未整改{{value|slice:"6:7"|first}}个， 已完成整改{{value|slice:"7:8"|first}}个）
+                {% endif %}
+            {% endfor %}  。这里未列出的乡镇表示该乡镇还没有通过两违监管系统走图斑的处置流程。
+        </p>
+    </div>
+</body>
+</html>
