@@ -113,9 +113,9 @@ def figurespot_stat(periods):
     count_by_xzmc = FigureSpot.objects.values('country').annotate(count = Count("pk")).order_by('country') 
     count_of_zicha = FigureSpot.objects.filter(figurespotnumber__contains = 'B').values('country').annotate(count = Count("pk")).order_by('country') 
     count_of_illegal = FigureSpot.objects.filter(whetherillegal = '是').values('country').annotate(count = Count("pk")).order_by('country') 
-    count_of_plan = FigureSpot.objects.filter(figurespotstate = '2').values('country').annotate(count = Count("pk")).order_by('country') 
-    count_of_power = FigureSpot.objects.filter(figurespotstate = '3').values('country').annotate(count = Count("pk")).order_by('country') 
-    count_of_over = FigureSpot.objects.filter(figurespotstate = '4').values('country').annotate(count = Count("pk")).order_by('country') 
+    count_of_plan = FigureSpot.objects.filter(figurespotstate = '4').values('country').annotate(count = Count("pk")).order_by('country') 
+    count_of_power = FigureSpot.objects.filter(figurespotstate = '9').values('country').annotate(count = Count("pk")).order_by('country') 
+    count_of_over = FigureSpot.objects.filter(figurespotstate = '7').values('country').annotate(count = Count("pk")).order_by('country') 
 
     # 充分利用QuerySet API装载字典
     chuzhi_stat_dict = {}

@@ -174,7 +174,7 @@
         <p>
                 这些图斑的分布如下图所示。
         </p>
-        {% leaflet_map "wenchangmap" callback="map_init" %} 
+        {% comment %} {% leaflet_map "wenchangmap" callback="map_init" %}  {% endcomment %}
          <!--PART3-->
         <h2>三 下发图斑的摸底调查及处置整改情况</h2>
         <p>
@@ -217,7 +217,6 @@
             {% endfor %}  
         </table>
         <p>
-            上表中未列出的乡镇是还没有开展工作。
             最新调查摸底图斑个数占上一期（这里为{{periods.1}}期）下发图斑个数的百分比定义为摸底调查完成率。各个乡镇的调查摸底完成率分别为
             {% for key, value in chuzhi_town.items %}
                 {% widthratio value|slice:"3:4"|first  value|slice:"1:2"|first 100 as percent_dcmd%}
@@ -233,9 +232,9 @@
             {% endfor %}  。这里未列出的乡镇表示该乡镇还没有工作人员利用APP开展自查工作。
         </p>
         <p>
-            各个乡镇待计划处置/已计划未整改/已完成整改图斑个数依次为
+            各个乡镇已有图斑完成整改的只有
             {% for key, value in chuzhi_town.items %}
-                {% if value|slice:"5:6"|first > 0 or value|slice:"6:7"|first > 0 or value|slice:"7:8"|first > 0 %}
+                {% if value|slice:"5:6"|first > 0 and  value|slice:"7:8"|first > 0 or value|slice:"6:7"|first > 0  %}
                     {{key}}（待计划处置{{value|slice:"5:6"|first}}个，已计划未整改{{value|slice:"6:7"|first}}个， 已完成整改{{value|slice:"7:8"|first}}个）
                 {% endif %}
             {% endfor %}  。这里未列出的乡镇表示该乡镇还没有通过两违监管系统走图斑的处置流程。
