@@ -2,7 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from  django.template import loader #模板加载函数
 from .models import ZengWei, FigureSpot
-import time
+# import time
+import datetime
 from django.db.models import Count
 
 def index(request):
@@ -11,23 +12,23 @@ def index(request):
     """
     periods = [] #下发图斑年份期数的编号
     count_of_periods = [] #下发期数对应的图斑数量
-    for iter in range(len(ZengWei.objects.values("yearperiod").distinct())):
-        period = ZengWei.objects.values("yearperiod").distinct()[iter]['yearperiod']
+    for iter in range(len(ZengWei.objects.values("yearperiod").distinct().order_by("-yearperiod"))):
+        period = ZengWei.objects.values("yearperiod").distinct().order_by("-yearperiod")[iter]['yearperiod']
         periods.append(period)
         count = ZengWei.objects.filter(yearperiod = str(period)).count()
         count_of_periods.append(count)
     periods_dict = dict(zip(periods, count_of_periods))
-    localtime = time.localtime(time.time()) #返回当前日期
-    localtime = time.asctime(localtime) #日期格式化输出
+    localtime = datetime.datetime.now()
     zengwei_stat_dict, subset_of_nt, subset_of_st = zengwei_stat(periods[0]) # sample_dict = {'文城镇' :[1,2,3,4,5]}
     """
     figurespot表分析
     """
-    chuzhi_count = FigureSpot.objects.all().count()
     illegal_count =  FigureSpot.objects.filter(whetherillegal = '是').count()
     legal_count =  FigureSpot.objects.filter(whetherillegal = '否').count()
     xiafa_count =  FigureSpot.objects.filter(figurespotnumber__contains = 'A' ).count()
     zicha_count =  FigureSpot.objects.filter(figurespotnumber__contains = 'B').count()
+    chuzhi_count = FigureSpot.objects.all().count() 
+    modi_count =  chuzhi_count - zicha_count ##解决把自查图斑统计进去的问题
     chuzhi_town = figurespot_stat(periods)
     """
     context参数内容设置
@@ -36,8 +37,9 @@ def index(request):
         # zengwei表
         'periods': periods,
         'count_of_periods': count_of_periods,
+        'count_all':sum(count_of_periods),
         'current_time': localtime,
-        'periods_dict': periods_dict,
+        'periods_dict': periods_dict, 
         'zengwei_town': zengwei_stat_dict,
         'luoru_jbnt': subset_of_nt,
         'luoru_sthx': subset_of_st,
@@ -47,6 +49,7 @@ def index(request):
         'legal_count': legal_count,
         'xiafa_count': xiafa_count,
         'zicha_count': zicha_count,
+        'modi_count':modi_count,
         'chuzhi_town': chuzhi_town
     }
     return  render(request, "report/index.html", context)
@@ -60,6 +63,7 @@ def zengwei_stat(yearperiod):
     jbnt_in_xzmc = ZengWei.objects.filter(yearperiod=yearperiod).exclude(sfjbnt='完全在优化基本农田外').values('xzmc').annotate(Count("pk"))
     lyhx_in_xzmc = ZengWei.objects.filter(yearperiod=yearperiod).exclude(sflyhx='完全在陆域生态红线外').values('xzmc').annotate(Count("pk"))
     zengwei_stat_dict = {}
+    xzmc = ZengWei.objects.values('xzmc')
     for iter in count_of_xzmc:
         town = iter['xzmc']
         count = iter['count']
@@ -105,9 +109,9 @@ def figurespot_stat(periods):
     摸底调查、计划处置、自查图斑的工作情况统计分析
     parameter periods 期数列表
     """
-    # 最近两期的zengwei按乡镇计数
+    # 最近一期和全部的zengwei按乡镇计数
     count_zeng_latest = ZengWei.objects.filter(yearperiod=periods[0]).values('xzmc').annotate(count = Count("pk")) #annotate返回的是一个queryse
-    count_zeng_penul =  ZengWei.objects.filter(yearperiod=periods[1]).values('xzmc').annotate(count = Count("pk"))
+    count_zeng_all =  ZengWei.objects.values('xzmc').annotate(count = Count("pk"))
 
     # figurespot表的各种图斑类型和图斑状态按乡镇计数
     count_by_xzmc = FigureSpot.objects.values('country').annotate(count = Count("pk")).order_by('country') 
@@ -121,7 +125,7 @@ def figurespot_stat(periods):
     chuzhi_stat_dict = {}
     for iter in count_by_xzmc:
         zeng_latest = 0
-        zeng_penul = 0
+        zeng_all = 0
         zicha = 0
         illegal = 0
         plan = 0
@@ -129,8 +133,8 @@ def figurespot_stat(periods):
         over = 0
         if count_zeng_latest.filter(xzmc =  iter['country']).count() > 0:
             zeng_latest = count_zeng_latest.filter(xzmc =  iter['country'])[0]['count']
-        if count_zeng_penul.filter(xzmc =  iter['country']).count() > 0:
-            zeng_penul = count_zeng_penul.filter(xzmc =  iter['country'])[0]['count']
+        if count_zeng_all.filter(xzmc =  iter['country']).count() > 0:
+            zeng_all = count_zeng_all.filter(xzmc =  iter['country'])[0]['count']
         if count_of_zicha.filter(country =  iter['country']).count() > 0:
             zicha = count_of_zicha.filter(country =  iter['country'])[0]['count']
         if count_of_illegal.filter(country = iter['country']).count() > 0:
@@ -142,6 +146,6 @@ def figurespot_stat(periods):
         if count_of_over.filter(country = iter['country']).count() > 0:
             over = count_of_over.filter(country = iter['country'])[0]['count']
         town = iter['country']
-        count = iter['count']
-        chuzhi_stat_dict.update({town:[zeng_latest, zeng_penul, zicha, count, illegal, plan, power, over]})
+        count = iter['count'] - zicha #调查摸底图斑个数
+        chuzhi_stat_dict.update({town:[zeng_latest, zeng_all, zicha, count, illegal, plan, power, over]})
     return chuzhi_stat_dict

@@ -1,9 +1,11 @@
 body {
-    font-family:Arial, Georgia, Source Han Serif SC;
-}
-p {
-    font-size:24px;
-}
+    /* font-family:; */
+    /* font-size: 12px; */
+} 
+
+/* p {
+    font-size: 12px;
+} */
 
 #header {
     background-color:white;
@@ -34,12 +36,25 @@ h1.title{
 #core {
     background-color:white;
     color:black;
-    /* text-align:left; */
     padding:5px;
     width: 100%;
     margin:0 auto; 
     text-indent: 2em;
+    align-self: center;
+    /* text-align-last:justify; */
+    /* text-align:justify; */
+    /* justify-content:space-between; */
+    /* -moz-text-align-last:justify; */
+    /* -webkit-text-align-last:justify;chrome 20+ */
+    /* font-size: 18px; */
 }
+
+#pic {
+    align-self: center;
+    text-align: center;
+    /* font-size: 18px; */
+}
+
 /*禁止一级标题跟随正文缩进*/
 h2{
     text-indent: 0em;
@@ -48,7 +63,7 @@ h2{
 #table1 {
     width:100%;
     border-collapse: collapse;
-    font-size: 16px;
+    font-size: 0.8em;
     table-layout: fixed;
     text-align: left;
     text-indent: 0em;
@@ -74,6 +89,9 @@ h2{
     color: #000000;
     background-color: #eaf2d3; 
 } 
+#table1 caption {
+    font-size: 1.2em;
+}
 li{
     font-size: 0.8em;
 }
